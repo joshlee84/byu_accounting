@@ -15,7 +15,8 @@ setup(
         'pandas',
         'selenium',
     ],
-
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Education',
@@ -27,4 +28,5 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
     ],
+    python_requires='>=3.7',
 )
