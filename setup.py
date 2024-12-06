@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='byu_accounting',
-    version='0.1.0',    
+    version='0.1.1',    
     description='Package for use by BYU Accounting Students',
     url='https://github.com/joshlee84/byu_accounting',
     author='Josh Lee',
@@ -14,6 +14,7 @@ setup(
         'pypdf',
         'pandas',
         'selenium',
+        'tk',
     ],
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',

@@ -1,0 +1,4 @@
+requests
+pypdf
+pandas
+selenium
