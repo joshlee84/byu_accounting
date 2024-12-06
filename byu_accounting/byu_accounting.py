@@ -229,28 +229,25 @@ def add_attachment(path_to_file, message):
         message.add_attachment(file.read(), maintype=mime_type, subtype=mime_subtype, filename=filename)
     return message
 
-def single_input(prompt: str, mask: bool = False, width: int = 0, height: int = 0):
+def single_input(prompt: str, mask: bool = False, width: int = 300, height: int = 150):
     """
     Displays a Tkinter input dialog box and retrieves a user input.
 
     Args:
         prompt (str): The prompt text displayed in the dialog.
         mask (bool, optional): Whether to mask the input (e.g., for passwords). Defaults to False.
-        width (int, optional): Minimum width of the dialog. Defaults to 0.
-        height (int, optional): Minimum height of the dialog. Defaults to 0.
+        width (int, optional): Minimum width of the dialog. Defaults to 300.
+        height (int, optional): Minimum height of the dialog. Defaults to 150.
 
     Returns:
         str: The user input as a string.
     """
     root = tk.Tk()
-    root.attributes('-topmost', True)
-
-    # Set the minimum size of the window
-    root.minsize(width, height)
-    root.title('Input')
+    root.attributes('-topmost', True)  # Keep the window on top
+    root.title("Input")
 
     # Variable to store the entered value
-    var = tk.StringVar(value='')
+    var = tk.StringVar()
 
     # Define colors and styles
     footer_bg = root.cget("bg")  # Match footer background to system default background
@@ -293,9 +290,10 @@ def single_input(prompt: str, mask: bool = False, width: int = 0, height: int = 
     confirm_button.pack(side=tk.RIGHT, padx=10, pady=10)
 
     # Focus the entry field
-    entry.focus()
+    def set_focus():
+        entry.focus_force()  # Force focus on the entry widget
+        root.attributes('-topmost', False)  # Reset topmost after setting focus
 
-    # Adjust the window size after adding widgets
     root.update_idletasks()  # Ensures all widget sizes are calculated
     content_width = max(root.winfo_reqwidth(), width)
     content_height = max(root.winfo_reqheight(), height)
@@ -307,6 +305,9 @@ def single_input(prompt: str, mask: bool = False, width: int = 0, height: int = 
     x = (screen_width - content_width) // 2
     y = (screen_height - content_height) // 2
     root.geometry(f"+{x}+{y}")
+
+    # Set focus after ensuring the window is drawn
+    root.after(50, set_focus)
 
     root.mainloop()
 
@@ -362,7 +363,8 @@ def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int
 
     root = tk.Tk()
     root.attributes('-topmost', True)
-
+    root.focus_force()
+    
     # Calculate required dimensions
     #label_width = max(len(input_config.get('label', 'Input')) for input_config in inputs) * 8  # Approximate width per char
     label_width = max(len(x) for x in inputs) * 8  # Approximate width per char
@@ -407,6 +409,7 @@ def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int
 
     # Dynamically add input fields
     last_entry = None
+    first_entry = None
     for i,label_text in enumerate(inputs):
         try:
             is_masked = masks[i]
@@ -439,6 +442,10 @@ def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int
         values[label_text] = entry
         last_entry = entry  # Keep track of the last entry field
 
+        # Track the first entry field to set focus later
+        if first_entry is None:
+            first_entry = entry
+
     # Create the footer area
     footer_frame = tk.Frame(root, bg=footer_bg, height=footer_height)
     footer_frame.pack(fill=tk.X, side=tk.BOTTOM)
@@ -463,13 +470,15 @@ def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int
     if last_entry:
         last_entry.bind('<Return>', lambda event: save_close())
 
-    root.mainloop()
+    # Ensure the first entry field gets focus
+    root.after(100, lambda: first_entry.focus_set())
 
+    root.mainloop()
+    
     # Return the collected values
     return user_input_values
 
 def show_message(title: str, message: str, width: int = 0, height: int = 0):
-
     """
     Display a customizable message window using Tkinter.
 
@@ -489,22 +498,8 @@ def show_message(title: str, message: str, width: int = 0, height: int = 0):
                                 Defaults to 0, allowing the size to be 
                                 determined by the content.
 
-    Features:
-        - Automatically adjusts the window size based on the message text.
-        - Centers the window on the user's screen.
-        - Includes a responsive "OK" button to close the window.
-        - Ensures a minimum size is respected when specified.
-
     Returns:
         None
-
-    Example:
-        show_message(
-            title="Information",
-            message="This is an important message.",
-            width=300,
-            height=200
-        )
     """
 
     # Initialize Tkinter root window
@@ -552,11 +547,17 @@ def show_message(title: str, message: str, width: int = 0, height: int = 0):
     def close_window():
         root.destroy()
 
-    ok_button = tk.ttk.Button(
+    ok_button = ttk.Button(
         footer_frame, text="OK", command=close_window
     )
     ok_button.pack(pady=10, side='right', padx=10)
 
+    # Bind the Enter key to close the window
+    root.bind('<Return>', lambda event: close_window())
+
+    # Ensure the window gains focus
+    root.focus_force()
+    
     root.mainloop()
 
 def select_file(title: str, filetypes: list=None):
