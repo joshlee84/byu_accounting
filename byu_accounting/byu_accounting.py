@@ -10,14 +10,14 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 
-def click_button(value, driver, type='xpath', index=0, timeout=None):
+def click_button(value, driver, type='XPATH', index=0, timeout=None):
     """
     Clicks a button on a webpage using Selenium WebDriver.
 
     Args:
         value (str): The value of the locator to find the button.
         driver (selenium.webdriver): The Selenium WebDriver instance.
-        type (str, optional): The type of locator to use (e.g., 'xpath', 'css_selector', 'id', etc.). Defaults to 'xpath'.
+        type (str, optional): The type of locator to use (e.g., 'XPATH', 'CSS_SELECTOR', 'ID', etc.). Defaults to 'XPATH'.
         timeout (float, optional): The time (in seconds) to attempt clicking before timing out. Defaults to None.
         index (int, optional): The index of the element to click (used for locators that return multiple elements). Defaults to 0.
 
@@ -28,14 +28,14 @@ def click_button(value, driver, type='xpath', index=0, timeout=None):
     
     start_time = time.time()
     locator_types = {
-        'xpath': By.XPATH,
-        'class_name': By.CLASS_NAME,
-        'css_selector': By.CSS_SELECTOR,
-        'id': By.ID,
-        'link_text': By.LINK_TEXT,
-        'name': By.NAME,
-        'partial_link_text': By.PARTIAL_LINK_TEXT,
-        'tag_name': By.TAG_NAME,
+        'XPATH': By.XPATH,
+        'CLASS_NAME': By.CLASS_NAME,
+        'CSS_SELECTOR': By.CSS_SELECTOR,
+        'ID': By.ID,
+        'NAME': By.NAME,
+        'LINK_TEXT': By.LINK_TEXT,
+        'PARTIAL_LINK_TEXT': By.PARTIAL_LINK_TEXT,
+        'TAG_NAME': By.TAG_NAME,
     }
 
     if type not in locator_types:
@@ -58,7 +58,7 @@ def click_button(value, driver, type='xpath', index=0, timeout=None):
                 print(f'Error clicking button: {e}')
                 return False
 
-def send_text(text, value, driver, type='xpath', index=0, timeout=None):
+def send_text(text, value, driver, type='XPATH', index=0, timeout=None):
     """
     Sends text to a specified input field on a webpage using Selenium WebDriver.
 
@@ -66,7 +66,7 @@ def send_text(text, value, driver, type='xpath', index=0, timeout=None):
         text (str): The text to send to the input field.
         value (str): The value of the locator to find the input field.
         driver (selenium.webdriver): The Selenium WebDriver instance.
-        type (str, optional): The type of locator to use (e.g., 'xpath', 'css_selector', 'id', etc.). Defaults to 'xpath'.
+        type (str, optional): The type of locator to use (e.g., 'XPATH', 'CSS_SELECTOR', 'ID', etc.). Defaults to 'XPATH'.
         index (int, optional): The index of the element to send text to (used for locators that return multiple elements). Defaults to 0.
         timeout (float, optional): The time (in seconds) to attempt sending text before timing out. Defaults to None.
 
@@ -77,14 +77,14 @@ def send_text(text, value, driver, type='xpath', index=0, timeout=None):
     
     start_time = time.time()
     locator_types = {
-        'xpath': By.XPATH,
-        'class_name': By.CLASS_NAME,
-        'css_selector': By.CSS_SELECTOR,
-        'id': By.ID,
-        'link_text': By.LINK_TEXT,
-        'name': By.NAME,
-        'partial_link_text': By.PARTIAL_LINK_TEXT,
-        'tag_name': By.TAG_NAME
+        'XPATH': By.XPATH,
+        'CLASS_NAME': By.CLASS_NAME,
+        'CSS_SELECTOR': By.CSS_SELECTOR,
+        'ID': By.ID,
+        'NAME': By.NAME,
+        'LINK_TEXT': By.LINK_TEXT,
+        'PARTIAL_LINK_TEXT': By.PARTIAL_LINK_TEXT,
+        'TAG_NAME': By.TAG_NAME,
     }
 
     if type not in locator_types:
@@ -106,14 +106,14 @@ def send_text(text, value, driver, type='xpath', index=0, timeout=None):
                 print(f'Error sending text: {e}')
                 return False
 
-def switch_to_iframe(value, driver, type='xpath', index=0, timeout=None):
+def switch_to_iframe(value, driver, type='XPATH', index=0, timeout=None):
     """
     Switches the WebDriver context to a specified iframe.
 
     Args:
         value (str): The value of the locator to find the iframe.
         driver (selenium.webdriver): The Selenium WebDriver instance.
-        type (str, optional): The type of locator to use (e.g., 'xpath', 'css_selector', 'id', etc.). Defaults to 'xpath'.
+        type (str, optional): The type of locator to use (e.g., 'XPATH', 'CSS_SELECTOR', 'ID', etc.). Defaults to 'XPATH'.
         index (int, optional): The index of the iframe to switch to (used for locators that return multiple elements). Defaults to 0.
         timeout (float, optional): The time (in seconds) to attempt switching before timing out. Defaults to None.
 
@@ -123,14 +123,14 @@ def switch_to_iframe(value, driver, type='xpath', index=0, timeout=None):
     """
     start_time = time.time()
     locator_types = {
-        'xpath': By.XPATH,
-        'class_name': By.CLASS_NAME,
-        'css_selector': By.CSS_SELECTOR,
-        'id': By.ID,
-        'link_text': By.LINK_TEXT,
-        'name': By.NAME,
-        'partial_link_text': By.PARTIAL_LINK_TEXT,
-        'tag_name': By.TAG_NAME
+        'XPATH': By.XPATH,
+        'CLASS_NAME': By.CLASS_NAME,
+        'CSS_SELECTOR': By.CSS_SELECTOR,
+        'ID': By.ID,
+        'NAME': By.NAME,
+        'LINK_TEXT': By.LINK_TEXT,
+        'PARTIAL_LINK_TEXT': By.PARTIAL_LINK_TEXT,
+        'TAG_NAME': By.TAG_NAME,
     }
 
     if type not in locator_types:
