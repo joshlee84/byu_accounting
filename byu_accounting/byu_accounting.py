@@ -10,79 +10,149 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 
-def click_button(xpath, driver, timeout=None):
+def click_button(value, driver, type='xpath', index=0, timeout=None):
     """
     Clicks a button on a webpage using Selenium WebDriver.
 
     Args:
-        xpath (str): The XPath of the button to click.
+        value (str): The value of the locator to find the button.
         driver (selenium.webdriver): The Selenium WebDriver instance.
+        type (str, optional): The type of locator to use (e.g., 'xpath', 'css_selector', 'id', etc.). Defaults to 'xpath'.
         timeout (float, optional): The time (in seconds) to attempt clicking before timing out. Defaults to None.
+        index (int, optional): The index of the element to click (used for locators that return multiple elements). Defaults to 0.
 
     Returns:
-        None
+        True if the button was clicked
+        False if the button was not clicked
     """
+    
     start_time = time.time()
+    locator_types = {
+        'xpath': By.XPATH,
+        'class_name': By.CLASS_NAME,
+        'css_selector': By.CSS_SELECTOR,
+        'id': By.ID,
+        'link_text': By.LINK_TEXT,
+        'name': By.NAME,
+        'partial_link_text': By.PARTIAL_LINK_TEXT,
+        'tag_name': By.TAG_NAME,
+    }
+
+    if type not in locator_types:
+        raise ValueError(f"Invalid locator type '{type}'. Valid options are: {list(locator_types.keys())}")
+
     while True:
         try:
-            button = driver.find_element(By.XPATH, xpath)
+            if index != 0:  # Handle multiple elements for class_name
+                elements = driver.find_elements(locator_types[type], value)
+                if len(elements) <= index:
+                    raise IndexError(f"No element found at index {index} for {type} '{value}'.")
+                button = elements[index]
+            else:
+                button = driver.find_element(locator_types[type], value)
+            
             button.click()
-            break
+            return True
         except Exception as e:
-            if timeout is not None:
-                if (time.time() - start_time) > timeout:
-                    print(f'Error clicking button: {e}')
-                    break
+            if timeout is not None and (time.time() - start_time) > timeout:
+                print(f'Error clicking button: {e}')
+                return False
 
-
-def send_text(text, xpath, driver, timeout=None):
+def send_text(text, value, driver, type='xpath', index=0, timeout=None):
     """
     Sends text to a specified input field on a webpage using Selenium WebDriver.
 
     Args:
         text (str): The text to send to the input field.
-        xpath (str): The XPath of the input field.
+        value (str): The value of the locator to find the input field.
         driver (selenium.webdriver): The Selenium WebDriver instance.
+        type (str, optional): The type of locator to use (e.g., 'xpath', 'css_selector', 'id', etc.). Defaults to 'xpath'.
+        index (int, optional): The index of the element to send text to (used for locators that return multiple elements). Defaults to 0.
         timeout (float, optional): The time (in seconds) to attempt sending text before timing out. Defaults to None.
 
     Returns:
-        None
+        True if the text was entered properly
+        False if the text was not entered properly
     """
+    
     start_time = time.time()
+    locator_types = {
+        'xpath': By.XPATH,
+        'class_name': By.CLASS_NAME,
+        'css_selector': By.CSS_SELECTOR,
+        'id': By.ID,
+        'link_text': By.LINK_TEXT,
+        'name': By.NAME,
+        'partial_link_text': By.PARTIAL_LINK_TEXT,
+        'tag_name': By.TAG_NAME
+    }
+
+    if type not in locator_types:
+        raise ValueError(f"Invalid locator type '{type}'. Valid options are: {list(locator_types.keys())}")
+
     while True:
         try:
-            box = driver.find_element(By.XPATH, xpath)
-            box.send_keys(text)
-            break
+            if index != 0:
+                elements = driver.find_elements(locator_types[type], value)
+                if len(elements) <= index:
+                    raise IndexError(f"No element found at index {index} for {type} '{value}'.")
+                input_field = elements[index]
+            else:
+                input_field = driver.find_element(locator_types[type], value)
+            input_field.send_keys(text)
+            return True
         except Exception as e:
-            if timeout is not None:
-                if (time.time() - start_time) > timeout:
-                    print(f'Error sending text: {e}')
-                    break
+            if timeout is not None and (time.time() - start_time) > timeout:
+                print(f'Error sending text: {e}')
+                return False
 
-def switch_to_iframe(xpath, driver, timeout=None):
+def switch_to_iframe(value, driver, type='xpath', index=0, timeout=None):
     """
     Switches the WebDriver context to a specified iframe.
 
     Args:
-        xpath (str): The XPath of the iframe to switch to.
+        value (str): The value of the locator to find the iframe.
         driver (selenium.webdriver): The Selenium WebDriver instance.
+        type (str, optional): The type of locator to use (e.g., 'xpath', 'css_selector', 'id', etc.). Defaults to 'xpath'.
+        index (int, optional): The index of the iframe to switch to (used for locators that return multiple elements). Defaults to 0.
         timeout (float, optional): The time (in seconds) to attempt switching before timing out. Defaults to None.
 
     Returns:
-        None
+        True if the iframe was located and switched to
+        False if the iframe was not located and not switched to
     """
     start_time = time.time()
+    locator_types = {
+        'xpath': By.XPATH,
+        'class_name': By.CLASS_NAME,
+        'css_selector': By.CSS_SELECTOR,
+        'id': By.ID,
+        'link_text': By.LINK_TEXT,
+        'name': By.NAME,
+        'partial_link_text': By.PARTIAL_LINK_TEXT,
+        'tag_name': By.TAG_NAME
+    }
+
+    if type not in locator_types:
+        raise ValueError(f"Invalid locator type '{type}'. Valid options are: {list(locator_types.keys())}")
+
     while True:
         try:
-            iframe = driver.find_element(By.XPATH, xpath)
+            if index != 0:
+                elements = driver.find_elements(locator_types[type], value)
+                if len(elements) <= index:
+                    raise IndexError(f"No iframe found at index {index} for {type} '{value}'.")
+                iframe = elements[index]
+            else:
+                iframe = driver.find_element(locator_types[type], value)
+            
             driver.switch_to.frame(iframe)
-            break
+            return True
         except Exception as e:
-            if timeout is not None:
-                if (time.time() - start_time) > timeout:
-                    print(f'Error clicking button: {e}')
-                    break
+            if timeout is not None and (time.time() - start_time) > timeout:
+                print(f'Error switching to iframe: {e}')
+                return False
+
 
 def switch_to_default_frame(driver):
     """
@@ -92,9 +162,10 @@ def switch_to_default_frame(driver):
         driver (selenium.webdriver): The Selenium WebDriver instance.
 
     Returns:
-        None
+        True
     """
     driver.switch_to.default_content()
+    return True
 
 def refresh_quickbooks_access_token(QUICKBOOKS_TOKENS, QUICKBOOKS_CLIENT_ID, QUICKBOOKS_CLIENT_SECRET):
 
