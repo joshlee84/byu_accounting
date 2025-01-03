@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='byu_accounting',
-    version='0.1.3',    
+    version='0.1.5',    
     description='Package for use by BYU Accounting Students',
     url='https://github.com/joshlee84/byu_accounting',
     author='Josh Lee',
@@ -15,6 +15,7 @@ setup(
         'pandas',
         'selenium',
         'tk',
+        'numpy',
     ],
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
