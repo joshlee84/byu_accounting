@@ -3,3 +3,4 @@ pypdf
 pandas
 selenium
 tk
+numpy

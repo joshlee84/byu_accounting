@@ -660,16 +660,15 @@ def select_file(title: str, filetypes: list=None):
 
     return selected_file
 
-def winsorize(data, lower_percentile, upper_percentile, truncate=False):
+def winsorize(data, lower_percentile, upper_percentile):
     """
-    Winsorize or truncate a numeric array or list by handling extreme values.
+    Winsorize a numeric array or list by handling extreme values.
 
     Parameters:
     - data: list or numpy array, the data to process
     - lower_percentile: float, the lower percentile (e.g., 0.01 for 1st percentile)
     - upper_percentile: float, the upper percentile (e.g., 0.99 for 99th percentile)
-    - truncate: bool, if True, set extreme values to NaN instead of capping them.
-
+    
     Returns:
     - numpy array, the processed data
     """
@@ -680,11 +679,31 @@ def winsorize(data, lower_percentile, upper_percentile, truncate=False):
     lower_threshold = np.percentile(data, lower_percentile * 100)
     upper_threshold = np.percentile(data, upper_percentile * 100)
 
-    if truncate:
-        # Set values outside the thresholds to NaN
-        data_processed = np.where((data < lower_threshold) | (data > upper_threshold), np.nan, data)
-    else:
-        # Clip values to the thresholds
-        data_processed = np.clip(data, lower_threshold, upper_threshold)
+    # Clip values to the thresholds
+    data_processed = np.clip(data, lower_threshold, upper_threshold)
 
+    return data_processed
+
+
+def truncate(data, lower_percentile, upper_percentile):
+    """
+    Truncate a numeric array or list by handling extreme values.
+
+    Parameters:
+    - data: list or numpy array, the data to process
+    - lower_percentile: float, the lower percentile (e.g., 0.01 for 1st percentile)
+    - upper_percentile: float, the upper percentile (e.g., 0.99 for 99th percentile)
+    
+    Returns:
+    - numpy array, the processed data
+    """
+    # Convert data to numpy array for easier manipulation
+    data = np.array(data)
+
+    # Determine the thresholds for winsorization or truncation
+    lower_threshold = np.percentile(data, lower_percentile * 100)
+    upper_threshold = np.percentile(data, upper_percentile * 100)
+
+    data_processed = np.where((data < lower_threshold) | (data > upper_threshold), np.nan, data)
+    
     return data_processed
