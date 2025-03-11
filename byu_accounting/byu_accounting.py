@@ -352,7 +352,7 @@ def single_input(prompt: str, mask: bool = False, width: int = 300, height: int 
 
     # Save and close
     def save_close():
-        root.destroy()
+        root.after(1, root.destroy())
 
     # Bind Enter key to the save_close function
     entry.bind('<Return>', lambda event: save_close())
@@ -529,7 +529,7 @@ def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int
         nonlocal user_input_values
         # Retrieve all input values before destroying the root window
         user_input_values = {key: entry.get() for key, entry in values.items()}
-        root.destroy()
+        root.after(1, root.destroy())
 
     # Add padding to ensure button visibility
     footer_frame.grid_propagate(False)
@@ -617,7 +617,7 @@ def show_message(title: str, message: str, width: int = 0, height: int = 0):
 
     # OK Button using ttk for native styling
     def close_window():
-        root.destroy()
+        root.after(1, root.destroy())
 
     ok_button = ttk.Button(
         footer_frame, text="OK", command=close_window
@@ -656,7 +656,7 @@ def select_file(title: str, filetypes: list=None):
     else:
         selected_file = filedialog.askopenfilename(title=title)
     # Destroy the root window after use
-    root.destroy()
+    root.after(1, root.destroy())
 
     return selected_file
 
