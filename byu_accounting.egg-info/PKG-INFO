@@ -1,6 +1,6 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.2
 Name: byu_accounting
-Version: 0.1.6
+Version: 0.1.7
 Summary: Package for use by BYU Accounting Students
 Home-page: https://github.com/joshlee84/byu_accounting
 Author: Josh Lee
@@ -24,6 +24,16 @@ Requires-Dist: pandas
 Requires-Dist: selenium
 Requires-Dist: tk
 Requires-Dist: numpy
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
 
 # byu_accounting
 
