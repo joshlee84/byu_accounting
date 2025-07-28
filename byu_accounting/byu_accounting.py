@@ -267,7 +267,7 @@ def create_pdf(templatepath, topath, update_dict):
     pagenum = 0
     while True:
         try:
-            writer.update_page_form_field_values(writer.pages[pagenum], update_dict)
+            writer.update_page_form_field_values(writer.pages[pagenum], fields={k: str(v) for k, v in update_dict.items()}, auto_regenerate=False)
             pagenum = pagenum + 1
         except Exception: # An exception is raised when the pagenum exceeds the number of pages in the PDF document. When that happens, we are done adding data to the PDF file so we break out of this while loop.
             break
