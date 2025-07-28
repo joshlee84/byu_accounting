@@ -1,8 +1,8 @@
 from setuptools import setup
 
 setup(
-    Name='byu_accounting',
-    Version='0.1.8',    
+    name='byu_accounting',
+    version='0.1.8',    
     description='Package for use by BYU Accounting Students',
     url='https://github.com/joshlee84/byu_accounting',
     author='Josh Lee',
