@@ -663,24 +663,20 @@ def select_file(title: str, filetypes: list=None):
 def winsorize(data, lower_percentile, upper_percentile):
     """
     Winsorize a numeric array or list by handling extreme values.
-
-    Parameters:
-    - data: list or numpy array, the data to process
-    - lower_percentile: float, the lower percentile (e.g., 0.01 for 1st percentile)
-    - upper_percentile: float, the upper percentile (e.g., 0.99 for 99th percentile)
-    
-    Returns:
-    - numpy array, the processed data
+    Missing values (NaN) are ignored in percentile calculations and preserved in output.
     """
-    # Convert data to numpy array for easier manipulation
-    data = np.array(data)
+    data = np.array(data, dtype=float)
 
-    # Determine the thresholds for winsorization or truncation
-    lower_threshold = np.percentile(data, lower_percentile * 100)
-    upper_threshold = np.percentile(data, upper_percentile * 100)
+    # Handle case where all values are NaN
+    if np.all(np.isnan(data)):
+        return data
 
-    # Clip values to the thresholds
-    data_processed = np.clip(data, lower_threshold, upper_threshold)
+    # Determine thresholds ignoring NaNs
+    lower_threshold = np.nanpercentile(data, lower_percentile * 100)
+    upper_threshold = np.nanpercentile(data, upper_percentile * 100)
+
+    # Clip non-NaN values to the thresholds
+    data_processed = np.where(np.isnan(data), np.nan, np.clip(data, lower_threshold, upper_threshold))
 
     return data_processed
 
@@ -688,22 +684,23 @@ def winsorize(data, lower_percentile, upper_percentile):
 def truncate(data, lower_percentile, upper_percentile):
     """
     Truncate a numeric array or list by handling extreme values.
-
-    Parameters:
-    - data: list or numpy array, the data to process
-    - lower_percentile: float, the lower percentile (e.g., 0.01 for 1st percentile)
-    - upper_percentile: float, the upper percentile (e.g., 0.99 for 99th percentile)
-    
-    Returns:
-    - numpy array, the processed data
+    Missing values (NaN) are ignored in percentile calculations and preserved in output.
     """
-    # Convert data to numpy array for easier manipulation
-    data = np.array(data)
+    data = np.array(data, dtype=float)
 
-    # Determine the thresholds for winsorization or truncation
-    lower_threshold = np.percentile(data, lower_percentile * 100)
-    upper_threshold = np.percentile(data, upper_percentile * 100)
+    # Handle case where all values are NaN
+    if np.all(np.isnan(data)):
+        return data
 
-    data_processed = np.where((data < lower_threshold) | (data > upper_threshold), np.nan, data)
-    
+    # Determine thresholds ignoring NaNs
+    lower_threshold = np.nanpercentile(data, lower_percentile * 100)
+    upper_threshold = np.nanpercentile(data, upper_percentile * 100)
+
+    # Replace outliers with NaN, keep existing NaNs as is
+    data_processed = np.where(
+        np.isnan(data) | (data < lower_threshold) | (data > upper_threshold),
+        np.nan,
+        data
+    )
+
     return data_processed
