@@ -10,6 +10,46 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 import numpy as np
+import platform
+import subprocess
+
+def is_dark_mode() -> bool:
+    """
+    Detects whether the system appearance is set to dark mode on Windows or macOS.
+
+    Returns:
+        bool: True if the OS is in dark mode, False if in light mode, or False by default if undetectable.
+    """
+    system = platform.system()
+    
+    # ---- Windows ----
+    if system == "Windows":
+        try:
+            import winreg
+            # Registry path for app theme preference
+            registry = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
+            key_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+            key = winreg.OpenKey(registry, key_path)
+            # 0 = Dark, 1 = Light
+            value, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+            winreg.CloseKey(key)
+            return value == 0
+        except Exception:
+            return False
+
+    # ---- macOS ----
+    else:
+        try:
+            # The macOS 'defaults' command returns 1 for dark mode
+            result = subprocess.run(
+                ["defaults", "read", "-g", "AppleInterfaceStyle"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            return "Dark" in result.stdout
+        except Exception:
+            return False  # Defaults to light if key not found
 
 def click_button(value, driver, type='XPATH', index=0, timeout=None):
     """
@@ -301,7 +341,7 @@ def add_attachment(path_to_file, message):
         message.add_attachment(file.read(), maintype=mime_type, subtype=mime_subtype, filename=filename)
     return message
 
-def single_input(prompt: str, mask: bool = False, width: int = 300, height: int = 150, dark_mode: bool = False):
+def single_input(prompt: str, mask: bool = False, width: int = 300, height: int = 150):
     """
     Displays a Tkinter input dialog box and retrieves a user input.
 
@@ -319,6 +359,9 @@ def single_input(prompt: str, mask: bool = False, width: int = 300, height: int 
     root.title("Input")
 
     var = tk.StringVar()
+
+    # Check if system is in dark_mode
+    dark_mode = is_dark_mode()
 
     # ----- Color Schemes -----
     if not dark_mode:
@@ -408,7 +451,7 @@ def single_input(prompt: str, mask: bool = False, width: int = 300, height: int 
 
     return var.get()
 
-def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int = 0, height: int = 0, dark_mode: bool = False):
+def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int = 0, height: int = 0):
     
     """
     Create a dynamic tkinter-based input form with customizable input fields and optional masking for secure input.
@@ -460,6 +503,9 @@ def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int
     root.attributes('-topmost', True)
     root.focus_force()
     root.title('Input Form')
+
+    # Check if system is in dark_mode
+    dark_mode = is_dark_mode()
 
     # ----- Color Schemes -----
     if not dark_mode:
@@ -602,7 +648,7 @@ def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int
     root.mainloop()
     return user_input_values
 
-def show_message(title: str, message: str, width: int = 0, height: int = 0, dark_mode: bool = False):
+def show_message(title: str, message: str, width: int = 0, height: int = 0):
     """
     Display a customizable message window using Tkinter.
 
@@ -630,6 +676,9 @@ def show_message(title: str, message: str, width: int = 0, height: int = 0, dark
     root = tk.Tk()
     root.attributes('-topmost', True)
     root.title(title)
+
+    # Check if system is in dark_mode
+    dark_mode = is_dark_mode()
 
     # ----- Color Schemes -----
     if not dark_mode:
@@ -722,7 +771,7 @@ def show_message(title: str, message: str, width: int = 0, height: int = 0, dark
     
     root.mainloop()
 
-def select_file(title: str, filetypes: list=None, dark_mode: bool=False):
+def select_file(title: str, filetypes: list=None):
     """
     Opens a file dialog for the user to select a file.
 
@@ -734,7 +783,7 @@ def select_file(title: str, filetypes: list=None, dark_mode: bool=False):
         str: The path of the selected file or an empty string if no file is selected.
     """
 
-    show_message("Select File", title, width=4, height=5, dark_mode=dark_mode)
+    show_message("Select File", title, width=4, height=5)
 
     root = tk.Tk()
     root.withdraw()  # Hide the root window
