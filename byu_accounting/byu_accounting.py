@@ -301,7 +301,7 @@ def add_attachment(path_to_file, message):
         message.add_attachment(file.read(), maintype=mime_type, subtype=mime_subtype, filename=filename)
     return message
 
-def single_input(prompt: str, mask: bool = False, width: int = 300, height: int = 150):
+def single_input(prompt: str, mask: bool = False, width: int = 300, height: int = 150, dark_mode: bool = False):
     """
     Displays a Tkinter input dialog box and retrieves a user input.
 
@@ -315,77 +315,100 @@ def single_input(prompt: str, mask: bool = False, width: int = 300, height: int 
         str: The user input as a string.
     """
     root = tk.Tk()
-    root.attributes('-topmost', True)  # Keep the window on top
+    root.attributes('-topmost', True)
     root.title("Input")
 
-    # Variable to store the entered value
     var = tk.StringVar()
 
-    # Define colors and styles
-    footer_bg = root.cget("bg")  # Match footer background to system default background
-    body_bg = "white"  # Input box and prompt area
-    input_border_color = "#d9d9d9"  # Light gray border color for the input box
+    # ----- Color Schemes -----
+    if not dark_mode:
+        footer_bg = root.cget("bg")
+        body_bg = "white"
+        input_border_color = "#d9d9d9"
+        entry_bg = "white"
+        text_color = "black"
+        button_bg = "#f0f0f0"
+        button_fg = "black"
+    else:
+        footer_bg = "#252526"
+        body_bg = "#1E1E1E"
+        input_border_color = "#3E3E3E"
+        entry_bg = "#2D2D2D"
+        text_color = "#FFFFFF"
+        button_bg = "#3A3A3A"
+        button_fg = "#FFFFFF"
+        root.configure(bg=body_bg)  # ✅ Make entire window background dark
 
-    # Create the main content area
+        # ✅ Custom ttk dark theme
+        style = ttk.Style()
+        style.theme_use('clam')  # Base theme that supports custom colors
+        style.configure(
+            "Dark.TButton",
+            background=button_bg,
+            foreground=button_fg,
+            borderwidth=1,
+            focusthickness=3,
+            focuscolor='none'
+        )
+        style.map(
+            "Dark.TButton",
+            background=[("active", "#505050")],  # hover color
+            foreground=[("active", "#FFFFFF")]
+        )
+
+    # ----- Body -----
     body_frame = tk.Frame(root, bg=body_bg)
     body_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-    # Create a label for the prompt
-    prompt_label = tk.Label(body_frame, text=prompt, bg=body_bg, wraplength=width - 20, font=("Helvetica", 12))
+    prompt_label = tk.Label(body_frame, text=prompt, bg=body_bg, fg=text_color, wraplength=width - 20, font=("Helvetica", 12))
     prompt_label.pack(pady=10)
 
-    # Create a frame for the input box
     input_row_frame = tk.Frame(body_frame, bg=body_bg)
     input_row_frame.pack(fill=tk.X, pady=10)
 
-    # Create a frame around the entry box to give it a border
     entry_frame = tk.Frame(input_row_frame, bg=input_border_color, padx=1, pady=1)
     entry_frame.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
 
-    # Create the entry box
-    entry = tk.Entry(entry_frame, textvariable=var, font=("Helvetica", 12), show='*' if mask else '')
+    entry = tk.Entry(entry_frame, textvariable=var, font=("Helvetica", 12),
+                     bg=entry_bg, fg=text_color, insertbackground=text_color,
+                     show='*' if mask else '')
     entry.pack(fill=tk.X)
 
-    # Create the footer area
+    # ----- Footer -----
     footer_frame = tk.Frame(root, bg=footer_bg)
     footer_frame.pack(fill=tk.X, side=tk.BOTTOM)
 
-    # Save and close
     def save_close():
         root.after(1, root.destroy())
 
-    # Bind Enter key to the save_close function
     entry.bind('<Return>', lambda event: save_close())
 
-    # Create a confirm button in the footer, aligned to the right
-    confirm_button = ttk.Button(footer_frame, text='Confirm', command=save_close)
+    # ✅ Use dark-styled button if dark_mode
+    button_style = "Dark.TButton" if dark_mode else "TButton"
+    confirm_button = ttk.Button(footer_frame, text='Confirm', command=save_close, style=button_style)
     confirm_button.pack(side=tk.RIGHT, padx=10, pady=10)
 
-    # Focus the entry field
     def set_focus():
-        entry.focus_force()  # Force focus on the entry widget
-        root.attributes('-topmost', False)  # Reset topmost after setting focus
+        entry.focus_force()
+        root.attributes('-topmost', False)
 
-    root.update_idletasks()  # Ensures all widget sizes are calculated
+    root.update_idletasks()
     content_width = max(root.winfo_reqwidth(), width)
     content_height = max(root.winfo_reqheight(), height)
     root.geometry(f"{content_width}x{content_height}")
 
-    # Center the window on the screen
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     x = (screen_width - content_width) // 2
     y = (screen_height - content_height) // 2
     root.geometry(f"+{x}+{y}")
 
-    # Set focus after ensuring the window is drawn
     root.after(50, set_focus)
-
     root.mainloop()
 
     return var.get()
 
-def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int = 0, height: int = 0):
+def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int = 0, height: int = 0, dark_mode: bool = False):
     
     """
     Create a dynamic tkinter-based input form with customizable input fields and optional masking for secure input.
@@ -436,121 +459,150 @@ def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int
     root = tk.Tk()
     root.attributes('-topmost', True)
     root.focus_force()
-    
-    # Calculate required dimensions
-    #label_width = max(len(input_config.get('label', 'Input')) for input_config in inputs) * 8  # Approximate width per char
-    label_width = max(len(x) for x in inputs) * 8  # Approximate width per char
-    input_field_height = 30  # Approximate height per input field
-    padding = 20  # Padding for the frame and labels
-    footer_height = 50  # Space for the footer
-    prompt_height = 60  # Space for the prompt label
+    root.title('Input Form')
 
-    # Calculate dynamic width and height
-    required_width = max(width, label_width + 220)  # Add space for labels and input fields
+    # ----- Color Schemes -----
+    if not dark_mode:
+        footer_bg = root.cget("bg")
+        body_bg = "white"
+        input_border_color = "#d9d9d9"
+        entry_bg = "white"
+        text_color = "black"
+        button_bg = "#f0f0f0"
+        button_fg = "black"
+    else:
+        footer_bg = "#252526"
+        body_bg = "#1E1E1E"
+        input_border_color = "#3E3E3E"
+        entry_bg = "#2D2D2D"
+        text_color = "#FFFFFF"
+        button_bg = "#3A3A3A"
+        button_fg = "#FFFFFF"
+
+        # ✅ Make entire window dark
+        root.configure(bg=body_bg)
+
+        # ✅ Create dark ttk button style
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure(
+            "Dark.TButton",
+            background=button_bg,
+            foreground=button_fg,
+            borderwidth=1,
+            focusthickness=3,
+            focuscolor='none'
+        )
+        style.map(
+            "Dark.TButton",
+            background=[("active", "#505050")],
+            foreground=[("active", "#FFFFFF")]
+        )
+
+    # ----- Layout Setup -----
+    label_width = max(len(x) for x in inputs) * 8
+    input_field_height = 30
+    padding = 20
+    footer_height = 50
+    prompt_height = 60
+
+    required_width = max(width, label_width + 220)
     required_height = max(height, prompt_height + footer_height + len(inputs) * input_field_height + padding + 40)
-    
-    # Center the window on the screen
+
+    # Center window
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     x_offset = (screen_width - required_width) // 2
     y_offset = (screen_height - required_height) // 2
-
     root.geometry(f'{required_width}x{required_height}+{x_offset}+{y_offset}')
     root.minsize(required_width, required_height)
-    root.title('Input Form')
 
-    # Dictionary to store entered values
-    values = {}
-
-    # Define colors and styles
-    footer_bg = root.cget("bg")  # Match footer background to system default background
-    body_bg = "white"  # Input box and prompt area
-    input_border_color = footer_bg  # Light gray border color for the input box
-
-    # Create the main content area
+    # ----- Main Body -----
     body_frame = tk.Frame(root, bg=body_bg)
     body_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-    # Create a label for the prompt
-    if prompt is not None:
-        tk.Label(body_frame, text=prompt, bg=body_bg, wraplength=required_width - 20, font=("Helvetica", 12)).pack(pady=10)
+    if prompt:
+        tk.Label(
+            body_frame,
+            text=prompt,
+            bg=body_bg,
+            fg=text_color,
+            wraplength=required_width - 20,
+            font=("Helvetica", 12)
+        ).pack(pady=10)
 
-    # Create a frame to contain the input fields
     input_fields_frame = tk.Frame(body_frame, bg=body_bg)
     input_fields_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
-    # Dynamically add input fields
+    # ----- Input Fields -----
+    values = {}
     last_entry = None
     first_entry = None
-    for i,label_text in enumerate(inputs):
+
+    for i, label_text in enumerate(inputs):
         try:
             is_masked = masks[i]
         except Exception:
             is_masked = False
 
-        # Create a frame for each input field
         input_frame = tk.Frame(input_fields_frame, bg=body_bg)
         input_frame.pack(fill=tk.X, pady=5)
 
-        # Add the label
         tk.Label(
             input_frame,
             text=label_text + ":",
             bg=body_bg,
+            fg=text_color,
             font=("Helvetica", 12),
             anchor='e',
             width=15
         ).pack(side=tk.LEFT, padx=5)
 
-        # Create a frame around the entry box to give it a border
         entry_frame = tk.Frame(input_frame, bg=input_border_color, padx=0, pady=3)
         entry_frame.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
 
-        # Create the entry field with uniform size
-        entry = tk.Entry(entry_frame, show='*' if is_masked else '', font=("Helvetica", 12))
+        entry = tk.Entry(
+            entry_frame,
+            show='*' if is_masked else '',
+            font=("Helvetica", 12),
+            bg=entry_bg,
+            fg=text_color,
+            insertbackground=text_color
+        )
         entry.pack(fill=tk.X, padx=5)
 
-        # Store the variable in the dictionary with the label as the key
         values[label_text] = entry
-        last_entry = entry  # Keep track of the last entry field
-
-        # Track the first entry field to set focus later
+        last_entry = entry
         if first_entry is None:
             first_entry = entry
 
-    # Create the footer area
+    # ----- Footer -----
     footer_frame = tk.Frame(root, bg=footer_bg, height=footer_height)
     footer_frame.pack(fill=tk.X, side=tk.BOTTOM)
+    footer_frame.grid_propagate(False)
 
-    # Save and close
     user_input_values = {}
 
     def save_close():
         nonlocal user_input_values
-        # Retrieve all input values before destroying the root window
         user_input_values = {key: entry.get() for key, entry in values.items()}
         root.after(1, root.destroy())
 
-    # Add padding to ensure button visibility
-    footer_frame.grid_propagate(False)
-
-    # Create a confirm button and align it to the right
-    confirm_button = ttk.Button(footer_frame, text='Confirm', command=save_close)
+    # ✅ Apply dark button style if dark mode
+    button_style = "Dark.TButton" if dark_mode else "TButton"
+    confirm_button = ttk.Button(footer_frame, text='Confirm', command=save_close, style=button_style)
     confirm_button.pack(side=tk.RIGHT, padx=20, pady=10)
 
-    # Bind Enter key to the last input field to trigger save_close
     if last_entry:
         last_entry.bind('<Return>', lambda event: save_close())
 
-    # Ensure the first entry field gets focus
-    root.after(100, lambda: first_entry.focus_set())
+    if first_entry:
+        root.after(100, lambda: first_entry.focus_set())
 
     root.mainloop()
-    
-    # Return the collected values
     return user_input_values
 
-def show_message(title: str, message: str, width: int = 0, height: int = 0):
+def show_message(title: str, message: str, width: int = 0, height: int = 0, dark_mode: bool = False):
     """
     Display a customizable message window using Tkinter.
 
@@ -579,6 +631,40 @@ def show_message(title: str, message: str, width: int = 0, height: int = 0):
     root.attributes('-topmost', True)
     root.title(title)
 
+    # ----- Color Schemes -----
+    if not dark_mode:
+        footer_bg = root.cget("bg")
+        body_bg = "white"
+        text_color = "black"
+        button_bg = "#f0f0f0"
+        button_fg = "black"
+    else:
+        footer_bg = "#252526"
+        body_bg = "#1E1E1E"
+        text_color = "#FFFFFF"
+        button_bg = "#3A3A3A"
+        button_fg = "#FFFFFF"
+
+        # ✅ Apply dark background to entire window
+        root.configure(bg=body_bg)
+
+        # ✅ Create dark ttk button style
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure(
+            "Dark.TButton",
+            background=button_bg,
+            foreground=button_fg,
+            borderwidth=1,
+            focusthickness=3,
+            focuscolor='none'
+        )
+        style.map(
+            "Dark.TButton",
+            background=[("active", "#505050")],
+            foreground=[("active", "#FFFFFF")]
+        )
+
     # Create a temporary label to measure the required size
     temp_label = tk.Label(text=message, font=('Helvetica', 12), wraplength=width - 20)
     temp_label.update_idletasks()  # Update geometry calculations
@@ -601,27 +687,31 @@ def show_message(title: str, message: str, width: int = 0, height: int = 0):
     root.geometry(f'{final_width}x{final_height}+{x}+{y}')
     root.minsize(width, height)
 
-    # Create the message frame to fill horizontally and vertically
-    message_frame = tk.Frame(root, bg='white')  # White background for the message area
+    # ----- Message Frame -----
+    message_frame = tk.Frame(root, bg=body_bg)
     message_frame.pack(fill='both', expand=True)
 
     # Message label
     message_label = tk.Label(
-        message_frame, text=message, bg='white', wraplength=final_width - 20, font=('Helvetica', 12)
+        message_frame,
+        text=message,
+        bg=body_bg,
+        fg=text_color,
+        wraplength=final_width - 20,
+        font=('Helvetica', 12)
     )
-    message_label.place(relx=0.5, rely=0.5, anchor='center')  # Center the label
+    message_label.place(relx=0.5, rely=0.5, anchor='center')
 
-    # Footer frame for the button
-    footer_frame = tk.Frame(root, bg=root.cget("bg"))  # Footer matches the title bar
+    # ----- Footer -----
+    footer_frame = tk.Frame(root, bg=footer_bg)
     footer_frame.pack(fill='x', side='bottom')
 
     # OK Button using ttk for native styling
     def close_window():
         root.after(1, root.destroy())
 
-    ok_button = ttk.Button(
-        footer_frame, text="OK", command=close_window
-    )
+    button_style = "Dark.TButton" if dark_mode else "TButton"
+    ok_button = ttk.Button(footer_frame, text="OK", command=close_window, style=button_style)
     ok_button.pack(pady=10, side='right', padx=10)
 
     # Bind the Enter key to close the window
@@ -632,7 +722,7 @@ def show_message(title: str, message: str, width: int = 0, height: int = 0):
     
     root.mainloop()
 
-def select_file(title: str, filetypes: list=None):
+def select_file(title: str, filetypes: list=None, dark_mode: bool=False):
     """
     Opens a file dialog for the user to select a file.
 
@@ -644,7 +734,7 @@ def select_file(title: str, filetypes: list=None):
         str: The path of the selected file or an empty string if no file is selected.
     """
 
-    show_message("Select File", title, width=4, height=5)
+    show_message("Select File", title, width=4, height=5, dark_mode=dark_mode)
 
     root = tk.Tk()
     root.withdraw()  # Hide the root window
