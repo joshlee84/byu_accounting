@@ -12,6 +12,8 @@ from tkinter import filedialog
 import numpy as np
 import platform
 import subprocess
+import os
+import getpass
 
 def is_dark_mode() -> bool:
     """
@@ -798,6 +800,69 @@ def select_file(title: str, filetypes: list=None):
     root.after(1, root.destroy)
 
     return selected_file
+
+def select_file_alt(title: str, filetypes: list=None):
+    """
+    Console-based alternative to select_file using plain input.
+
+    Args:
+        title (str): The title or description for the file selection.
+        filetypes (list, optional): Ignored in this console version.
+
+    Returns:
+        str: Path to the selected file (validated to exist).
+    """
+    print(f"\n--- {title} ---")
+    while True:
+        path = input("Enter full path to the file: ").strip('"').strip("'")
+        if os.path.exists(path):
+            return path
+        else:
+            print("❌ File not found. Please try again.")
+
+
+
+def single_input_alt(prompt: str, mask: bool = False, width: int = 300, height: int = 150):
+    """
+    Console-based alternative to single_input using input() or getpass().
+    """
+    print(f"\n{prompt}")
+    if mask:
+        return getpass.getpass("Input (hidden): ")
+    else:
+        return input("Input: ")
+
+
+def input_form_alt(prompt: str=None, inputs: list=None, masks: list=None, width: int = 0, height: int = 0):
+    """
+    Console-based alternative to input_form.
+    """
+    if inputs is None:
+        raise Exception("inputs must be declared.")
+    if masks is not None and len(masks) != len(inputs):
+        raise Exception("Length of masks must match inputs.")
+
+    print()
+    if prompt:
+        print(f"--- {prompt} ---")
+
+    responses = {}
+    for i, label in enumerate(inputs):
+        masked = masks[i] if masks else False
+        if masked:
+            responses[label] = getpass.getpass(f"{label}: ")
+        else:
+            responses[label] = input(f"{label}: ")
+    return responses
+
+def show_message_alt(title: str, message: str, width: int = 0, height: int = 0):
+    """
+    Console-based alternative to show_message.
+    """
+    print(f"\n=== {title} ===")
+    print(message)
+    #input("\nPress Enter to continue...")
+
 
 def winsorize(data, lower_percentile, upper_percentile):
     """
