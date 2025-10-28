@@ -795,7 +795,7 @@ def select_file(title: str, filetypes: list=None):
     else:
         selected_file = filedialog.askopenfilename(title=title)
     # Destroy the root window after use
-    root.after(1, root.destroy())
+    root.after(1, root.destroy)
 
     return selected_file
 
