@@ -332,13 +332,21 @@ def add_attachment(path_to_file, message):
         email.message.EmailMessage: The updated email message object with the attachment.
     """
 
-    if '/' in path_to_file:
-        filename = path_to_file.split('/')[-1]
-    if '\\' in path_to_file:
-        filename = path_to_file.split('\\')[-1]
+    # Extract filename cross-platform
+    filename = os.path.basename(path_to_file)
+
+    # if '/' in path_to_file:
+    #     filename = path_to_file.split('/')[-1]
+    # if '\\' in path_to_file:
+    #     filename = path_to_file.split('\\')[-1]
 
     mime_type, _ = mimetypes.guess_type(path_to_file)
-    mime_type, mime_subtype = mime_type.split('/')
+    # Fallback for unknown types
+    if mime_type is None:
+        mime_type, mime_subtype = 'application', 'octet-stream'
+    else:
+        mime_type, mime_subtype = mime_type.split('/')
+
     with open(path_to_file, 'rb') as file:
         message.add_attachment(file.read(), maintype=mime_type, subtype=mime_subtype, filename=filename)
     return message
