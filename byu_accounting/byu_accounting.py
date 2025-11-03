@@ -432,7 +432,7 @@ def single_input(prompt: str, mask: bool = False, width: int = 300, height: int 
     footer_frame.pack(fill=tk.X, side=tk.BOTTOM)
 
     def save_close():
-        root.after(1, root.destroy)
+        root.after(1, root.destroy())
 
     entry.bind('<Return>', lambda event: save_close())
 
@@ -642,7 +642,7 @@ def input_form(prompt: str=None, inputs: list=None, masks: list=None, width: int
     def save_close():
         nonlocal user_input_values
         user_input_values = {key: entry.get() for key, entry in values.items()}
-        root.after(1, root.destroy)
+        root.after(1, root.destroy())
 
     # ✅ Apply dark button style if dark mode
     button_style = "Dark.TButton" if dark_mode else "TButton"
@@ -767,7 +767,7 @@ def show_message(title: str, message: str, width: int = 0, height: int = 0):
 
     # OK Button using ttk for native styling
     def close_window():
-        root.after(1, root.destroy)
+        root.after(1, root.destroy())
 
     button_style = "Dark.TButton" if dark_mode else "TButton"
     ok_button = ttk.Button(footer_frame, text="OK", command=close_window, style=button_style)
@@ -805,7 +805,7 @@ def select_file(title: str, filetypes: list=None):
     else:
         selected_file = filedialog.askopenfilename(title=title)
     # Destroy the root window after use
-    root.after(1, root.destroy)
+    root.after(1, root.destroy())
 
     return selected_file
 
